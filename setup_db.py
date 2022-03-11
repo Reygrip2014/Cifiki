@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from models import Base
+from models import Base, Site
 
 
 SITES = [
@@ -21,8 +21,12 @@ def create_tables():
     session = Session(engine)
     for site in SITES:
         s = Site(
-                url = s.url,
-                name = s.name
+                url = site["url"],
+                name = site["name"]
         )
         session.add(s)
         session.flush()
+    session.commit()
+
+if __name__ == "__main__":
+    create_tables()
