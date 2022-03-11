@@ -1,10 +1,8 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import Session
+from sqlalchemy import select
 import requests
-from Cifiki.main import main
 
 from models import Site, MainNews, CoureselNews
 
@@ -18,7 +16,7 @@ class rtbfScraper():
         r = requests.get(self.url)
         soup = BeautifulSoup(r.text, "lxml")
         site = self.session.execute(select(Site).filter_by(name=self.name)).scalar_one()
-        #self.scrape_main_news(soup, site)  
+        self.scrape_main_news(soup, site)  
         self.scrape_carousel_news(soup, site)      
         self.session.flush()
        
@@ -38,9 +36,6 @@ class rtbfScraper():
                 return
         self.session.add(news)
         self.session.flush()
-        site.news.append(
-            news
-        )
         self.session.add(site)
         site.main_news_id = news.id
 
@@ -56,6 +51,7 @@ class rtbfScraper():
                     site_id = site.id,
                     is_carousel = True
                 )
+                self.session.add(news)
 
     def main(self):
         self.scrape()
